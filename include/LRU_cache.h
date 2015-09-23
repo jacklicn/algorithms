@@ -74,7 +74,7 @@ namespace alg {
 				cache_hash.clear();
 			}
 
-			V getValue(K key) {
+			const V& getValue(const K& key) {
 				//put the value in front of the list if find the key
 				if(cache_hash.find(key) != cache_hash.end()){
 					CacheNode *p=cache_hash[key];
@@ -84,12 +84,12 @@ namespace alg {
 				}else{
 
 					cout << "[ERROR]No key with name ::" << key << endl;
-					return V();
+					return empty_;
 				}
 
 			}
 
-			bool putValue(K key,V value) {
+			bool putValue(const K& key,const V& value) {
 				if (cache_hash.find(key) != cache_hash.end()) {
 					cache_hash[key]->value=value;
 					detachNode((CacheNode *)cache_hash[key]);
@@ -126,7 +126,10 @@ namespace alg {
 			CacheNode *p_cache_list_head;
 			CacheNode *p_cache_list_near;
 			map<K,CacheNode*>cache_hash;
-
+                        V empty_;
+                      
+                        LRUCache(const LRUCache& cache);
+                        LRUCache& operator=(const LRUCache& cache);
 
 			void detachNode(CacheNode *node){
 				node->pre->next=node->next;
@@ -151,7 +154,7 @@ namespace alg {
 				detachNode(p);
 				cout << "[INFO]Delete key ::: " << p->key <<endl;
 				cache_hash.erase(p->key);
-				free(p);
+				delete p;
 			}
 		};
 }
