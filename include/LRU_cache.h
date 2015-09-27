@@ -53,7 +53,7 @@ class LRUCache {
 
 public:
     LRUCache(int cache_size=10) {
-        cache_size_ = cache_size;
+        _cache_size = cache_size;
         p_cache_list_head = new CacheNode();
         p_cache_list_near = new CacheNode();
         p_cache_list_head->next = p_cache_list_near;
@@ -74,27 +74,28 @@ public:
         cache_hash.clear();
     }
 
-    V getValue(K key) {
+    const V& getValue(const K& key) {
         //put the value in front of the list if find the key
         if(cache_hash.find(key) != cache_hash.end()){
-            CacheNode *p=cache_hash[key];
+            CacheNode *p = cache_hash[key];
             detachNode(p);
             addFristNode(p);
-            return (cache_hash[key]->value);
+            return (p->value);
         }else{
 
             cout << "[ERROR]No key with name ::" << key << endl;
-            return V();
+            return _empty;
         }
 
     }
 
-    bool putValue(K key,V value) {
+    bool putValue(const K& key,const V& value) {
         if (cache_hash.find(key) != cache_hash.end()) {
-            cache_hash[key]->value=value;
-            detachNode((CacheNode *)cache_hash[key]);
-            addFristNode((CacheNode *)cache_hash[key]);
-            if (cache_hash.size()>cache_size_) {
+            CacheNode *p = cache_hash[key];
+            p->value=value;
+            detachNode(p);
+            addFristNode(p);
+            if (cache_hash.size()>_cache_size) {
                 delEndNode();
             }
         } else {
@@ -103,7 +104,7 @@ public:
             p->value=value;
             addFristNode(p);
             cache_hash[key]=p;
-            if(cache_hash.size()>cache_size_){
+            if(cache_hash.size()>_cache_size){
                 cout << "[INFO]LRU Cache is full ... Delete Last One..." << endl;
                 delEndNode();
             }
@@ -122,11 +123,14 @@ public:
     }
 
 private:
-    int cache_size_;
+    int _cache_size;
     CacheNode *p_cache_list_head;
     CacheNode *p_cache_list_near;
     map<K,CacheNode*>cache_hash;
+    V _empty;
 
+    LRUCache(const LRUCache& cache);
+    LRUCache& operator=(const LRUCache& cache);
 
     void detachNode(CacheNode *node){
         node->pre->next=node->next;
@@ -151,7 +155,7 @@ private:
         detachNode(p);
         cout << "[INFO]Delete key ::: " << p->key <<endl;
         cache_hash.erase(p->key);
-        free(p);
+        delete p;
     }
 };
 }
